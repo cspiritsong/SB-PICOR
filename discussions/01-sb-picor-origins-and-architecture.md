@@ -36,7 +36,22 @@ Massive presets are built by authors attempting to be "Universal". Instead of fi
 
 ---
 
-## 3. The 4-Stage SB-PICOR Pipeline
+## 3. Empirical AST Reconnaissance: Geechan v5.3 Ingestion
+
+Static analysis of `intel/presets/geechan-universal-v5.3-tinker-v3.json` revealed shocking empirical proof of the "Preset Bloat" pathology:
+- **Total defined prompts in JSON:** **54 prompt blocks** (223,020 characters / ~55,755 tokens of text).
+- **Revision Control Abuse:** Preset authors literally use the SillyTavern prompt list as a Git commit history and manual menu. For example, Order 1 contains:
+  - `NSFW Meip's Foolery v0.5 (old)` (8,257 chars, DISABLED)
+  - `NSFW Meip's Foolery v1` through `v5` (each ~7,200 chars, DISABLED)
+  - `🌳 README` (5,320 chars, DISABLED)
+  - `🌿 Sampling Advice` (2,029 chars, DISABLED)
+  - `🌱 ━+ Enable ONE` (0 chars, used as a UI category divider label!)
+- **Active Payload:** Out of 53 entries in Order 1, only **3 prompts are actually active** (8,668 chars / ~2,167 tokens). The other 50 are dead revisions, manuals, and comment dividers.
+- **Wire Incompatibilities:** Top-level config forces `temperature: 1`, `top_p: 0.99`, `repetition_penalty: 1`, and `reasoning_effort: max`. Dispatched to an OpenAI o3-mini or Ollama endpoint, this payload will immediately HTTP 400.
+
+---
+
+## 4. The 4-Stage SB-PICOR Pipeline
 
 1. **Inspect (0 tokens / Static AST):**
    - Parses the preset JSON.
@@ -59,9 +74,9 @@ Massive presets are built by authors attempting to be "Universal". Instead of fi
 
 ---
 
-## 4. Immediate Decisions & Next Steps
+## 5. Immediate Decisions & Next Steps
 
 - Project name officially established: **SB-PICOR** (SillyBunny Preset Inspector, Cleaner, Optimizer, Repackager).
 - Workspace initialized at `/home/badi/projects/SB-PICOR`.
 - Benchmark artifact: Geechan Universal Roleplay v5.3 (Meip's Tinker v3) stored in `intel/presets/`.
-- Next step: Run static schema analysis script over Geechan v5.3 to map the exact JSON topology.
+- Next step: Build the Phase 2 AST linter engine in `src/ast/`.

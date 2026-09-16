@@ -9,19 +9,15 @@
 
 ## 1. Executive Summary
 
-**SB-PICOR** (SillyBunny Preset Inspector, Cleaner, Optimizer, Repackager) is a specialized tool and SillyBunny/SillyTavern extension that solves the **"Monolithic Preset" problem**.
+**SB-PICOR** is an autonomous **Preset & Character Card Doctor Agent** packaged as a standalone extension for the SillyBunny and SillyTavern ecosystem.
 
-Community power-presets (e.g. *Geechan Universal*, *Mother Midnight*, *Freaky Frankenstein*, *Pura Director*) are engineered as monolithic kitchen-sink files bundling 40–60 prompt blocks, heavy negative constraint chains, anti-refusals, and tuned samplers. When users import these presets and switch models (e.g. Claude to o3-mini to DeepSeek) or pair them with opinionated character cards, three compounding failures occur:
-1. **Model Wire Crashes (HTTP 400):** Providers like OpenAI o-series reject `temperature`/`top_p`/penalties; modern Ollama rejects `typical_p`; Claude rejects temperature when thinking is enabled.
-2. **The "OOC Gag Trap":** Negative constraints in the preset and card (e.g., *"Never break character"*, *"Never speak for {{user}}"*) gag the LLM during Out-Of-Character (OOC) troubleshooting, causing loops, cryptic stammering, and refusal.
-3. **Cache Inefficiency & Token Bloat:** Dynamic variables (`{{time}}`, low-depth injections) placed high in system blocks break prefix caching across Anthropic, DeepSeek, and OpenAI, inflating API costs by 300–800% and burning 4,000+ context tokens per turn.
+Instead of vague summaries or black-box failures, SB-PICOR acts like an intelligent code debugger with **line-number precision**. It inspects the interaction between the user's **Active Model**, **Loaded Preset**, and **Character Card**, pinpointing the exact field, line number, and rule causing chat breakdowns.
 
-SB-PICOR operates like an **LLVM compiler for LLM Presets**:
-- **Source:** Master "Universal" Preset JSON.
-- **Inspect (0 tokens):** Static AST scan of active toggles, token weight, sampler compatibility, and cache boundaries.
-- **Clean:** Deduplicate overlapping negative constraints and flag collisions between Card and Preset.
-- **Optimize (Deterministic Agent Pass):** Transform instructions into target-specific provider prompt grammars (Anthropic XML, OpenAI Markdown/Developer role, Google SystemInstruction, DeepSeek clean).
-- **Repackage:** Compile a lean, character- and model-tailored preset (`Geechan v5.3 [Alice • Claude 3.7 Edition]`, ~750 tokens vs 4,200 tokens) without modifying the original master preset.
+### The Delivery Strategy
+Per Badi's directive (2026-09-16):
+- **Ecosystem-First Extension:** Developed, tested, and published as a standalone community extension under `cspiritsong/SB-PICOR`.
+- **Installable via Extension Manager:** One-click install via Git URL (`https://github.com/cspiritsong/SB-PICOR`) directly into `public/scripts/extensions/third-party/SB-PICOR`.
+- **Zero Core Burden:** Does not require emergency upstream PRs. Once proven, battle-tested, and loved by the community, SillyBunny maintainers can choose to vendor or adopt it into core.
 
 ---
 
@@ -29,50 +25,50 @@ SB-PICOR operates like an **LLVM compiler for LLM Presets**:
 
 | Role | Repository / Remote | GitHub Account | Credential / Protocol |
 | :--- | :--- | :--- | :--- |
-| **Upstream Target** | `SillyBunnyTeam/SillyBunny` / Extension Ecosystem | N/A (read-only) | Read-only |
-| **Canonical Repo** | `cspiritsong/SB-PICOR` (or `sillybunny-picor`) | `cspiritsong` | `GITHUB_CSPIRITSONG_TOKEN` |
+| **Extension Repo** | `cspiritsong/SB-PICOR` | `cspiritsong` | `GITHUB_CSPIRITSONG_TOKEN` |
+| **Upstream Target** | `SillyBunnyTeam/SillyBunny` (Extensions) | N/A (read-only) | Read-only |
 | **Daily Operations** | N/A | `badiyee85` | Default `gh` account |
 
-*Per Badi's standing identity rule: SillyTavern / SillyBunny ecosystem tooling belongs strictly to the `cspiritsong` lane.*
+*All public git remotes, tags, and releases belong strictly to the `cspiritsong` identity lane.*
 
 ---
 
-## 3. Test Harness & Topography
+## 3. What the Doctor Agent Delivers
 
-1. **Local Linux Host (Canonical Dev):**
-   - Node.js ESM environment, testing fixtures, static AST scanner, schema validator.
-2. **SillyBunny Baseline / Canary (Port 4444 / 4445):**
-   - Extension integration testing against live SillyBunny runtime.
-3. **Provider Testbeds:**
-   - OpenAI-compatible endpoints, Anthropic Claude endpoints, Google Gemini, Ollama local instance.
+When summoned via the **`🩺` Doctor Icon**, slash command (`/doctor` or `/picor`), or when intercepting an `[OOC: ...]` query:
+
+1. **Exact Forensic Breadcrumbs:**
+   - **Component:** (e.g. *Character Card "Alice"*, *Preset "Mother Midnight"*, *Samplers*)
+   - **Box/Field:** (e.g. *Post-History Instructions*, *Prompt #4 (jailbreak)*, *Description*)
+   - **Line Number:** Exact 1-indexed line number in that field.
+   - **Exact Text:** Verbatim snippet causing the conflict.
+2. **The "OOC Gag Trap" Detection:**
+   - Identifies rules like `"Under no circumstances break character"` that gag the AI when users try to troubleshoot in chat.
+3. **Model Wire Compatibility:**
+   - Detects unsupported samplers (`temperature` on o3-mini, `typical_p` on modern Ollama) before generation crashes with HTTP 400.
+4. **Actionable Remediation:**
+   - `[✂️ Mute Line]`: Disables or removes the offending line from the card/preset.
+   - `[⚡ Strip Sampler]`: Strips illegal wire parameters for the active model.
+   - `[📦 Repackage Lean Preset]`: Compiles a tailored, conflict-free preset for that specific character and model.
 
 ---
 
-## 4. Workspace Directory Layout
+## 4. Extension File Layout
 
 ```text
 ~/projects/SB-PICOR/
-├── AGENTS.md                 # Agent operating contract, rules, and provider grammar invariants
+├── manifest.json             # SillyTavern / SillyBunny extension manifest
+├── index.js                  # Extension entrypoint, UI injection, slash commands
+├── style.css                 # Clean diagnostic cards and inspector modal styling
+├── AGENTS.md                 # Agent operating contract, rules, and provider invariants
 ├── PROJECT.md                # Project mission, architecture, and repo map
-├── PLAN.md                   # Live execution ledger & phase checkpoints
-├── README.md                 # Project overview and usage guide
-├── .gitignore                # Hygiene and ignore rules
-├── intel/                    # Presets, analysis dumps, and research
-│   └── presets/              # Raw community presets (Geechan, Frankenstein, etc.)
-├── src/                      # Core logic
-│   ├── ast/                  # Preset parser, tokenizer, and schema extractor
-│   ├── linter/               # Conflict detector and sampler compatibility checker
-│   ├── targets/              # Provider-specific compilers (anthropic, openai, google, deepseek)
-│   └── extension/            # SillyBunny / SillyTavern UI plugin harness
-└── discussions/              # Historical discussions, transcripts, and decisions
-    ├── INDEX.md              # Sessions master table
-    ├── 01-sb-picor-origins-and-architecture.md
-    └── sessions.json         # Machine-readable session registry
+├── PLAN.md                   # Live execution ledger & milestone tracking
+├── README.md                 # Public documentation and installation guide
+├── src/                      # Core engine
+│   ├── ast/                  # Preset parser and token weight calculator
+│   ├── linter/               # Wire audit, card linter, and arrangement checker
+│   ├── cleaner/              # Dead-prompt and divider pruner
+│   └── repackager/           # Tailored preset compiler
+├── tests/                    # Automated regression test suite (17/17 passing)
+└── discussions/              # Historical transcripts and architectural decisions
 ```
-
----
-
-## 5. Active Deliverables & Status
-
-- **Current Milestone:** Phase 1 — Project Initialization & Preset Intake.
-- **Test Artifact on Disk:** `intel/presets/geechan-universal-v5.3-tinker-v3.json` (analyzed).

@@ -1,0 +1,14 @@
+{
+    "display_name": "SB-PICOR: Preset & Card Doctor",
+    "loading_order": 20,
+    "requires": [],
+    "optional": [],
+    "js": "index.js",
+    "css": "style.css",
+    "author": "cspiritsong",
+    "version": "1.0.0",
+    "homePage": "https://github.com/cspiritsong/SB-PICOR",
+    "hooks": {
+        "activate": "init"
+    }
+}

@@ -1,0 +1,110 @@
+{
+  "models": {
+    "openai/o1": {
+      "name": "OpenAI o1",
+      "provider": "openai",
+      "disallowed_samplers": [
+        "temperature",
+        "top_p",
+        "presence_penalty",
+        "frequency_penalty",
+        "top_k",
+        "top_a",
+        "min_p",
+        "typical_p",
+        "repetition_penalty"
+      ],
+      "requires_max_completion_tokens": true,
+      "supports_system_role": false,
+      "uses_developer_role": true,
+      "crash_on_disallowed": true,
+      "notes": "o1 will immediately return HTTP 400 if temperature, top_p, or penalties are present."
+    },
+    "openai/o3-mini": {
+      "name": "OpenAI o3-mini",
+      "provider": "openai",
+      "disallowed_samplers": [
+        "temperature",
+        "top_p",
+        "presence_penalty",
+        "frequency_penalty",
+        "top_k",
+        "top_a",
+        "min_p",
+        "typical_p",
+        "repetition_penalty"
+      ],
+      "requires_max_completion_tokens": true,
+      "supports_system_role": false,
+      "uses_developer_role": true,
+      "crash_on_disallowed": true,
+      "notes": "o3-mini will return HTTP 400 if legacy sampling options are forwarded."
+    },
+    "anthropic/claude-3-7-sonnet": {
+      "name": "Anthropic Claude 3.7 Sonnet",
+      "provider": "anthropic",
+      "disallowed_samplers": [
+        "typical_p",
+        "top_a",
+        "min_p",
+        "repetition_penalty"
+      ],
+      "conditional_rules": {
+        "thinking_active": {
+          "disallow": ["presence_penalty", "frequency_penalty"],
+          "force_temperature": 1.0,
+          "notes": "When extended thinking is enabled, temperature must be 1.0 and penalties must be stripped."
+        }
+      },
+      "crash_on_disallowed": true,
+      "notes": "Anthropic native API rejects llama.cpp samplers (typical_p, min_p, top_a)."
+    },
+    "google/gemini-2.5-pro": {
+      "name": "Google Gemini 2.5 Pro",
+      "provider": "google",
+      "disallowed_samplers": [
+        "typical_p",
+        "min_p",
+        "top_a",
+        "repetition_penalty"
+      ],
+      "crash_on_disallowed": true,
+      "notes": "Gemini API rejects non-standard samplers with 400 INVALID_ARGUMENT."
+    },
+    "deepseek/deepseek-r1": {
+      "name": "DeepSeek R1",
+      "provider": "deepseek",
+      "disallowed_samplers": [
+        "typical_p",
+        "top_a",
+        "min_p"
+      ],
+      "recommended_temperature_range": [0.5, 0.7],
+      "max_recommended_system_tokens": 1500,
+      "crash_on_disallowed": false,
+      "notes": "Official DeepSeek guidance: Do not use complex system prompts/jailbreaks; degrades reasoning tree."
+    },
+    "ollama/generic": {
+      "name": "Ollama (Modern Release)",
+      "provider": "ollama",
+      "disallowed_samplers": [
+        "typical_p"
+      ],
+      "crash_on_disallowed": true,
+      "notes": "Recent Ollama builds deprecated and dropped typical_p following upstream llama.cpp removal; throws HTTP 400 (SillyTavern #6044)."
+    },
+    "xai/grok": {
+      "name": "xAI Grok",
+      "provider": "xai",
+      "disallowed_samplers": [
+        "presence_penalty",
+        "frequency_penalty",
+        "typical_p",
+        "min_p",
+        "top_a"
+      ],
+      "crash_on_disallowed": true,
+      "notes": "Grok throws HTTP 400 if presence_penalty or frequency_penalty are sent (fixed in SillyBunny PR #755)."
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "sb-picor",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "node tests/sb-picor.test.js && node tests/alpha2.test.js"
+  }
+}

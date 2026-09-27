@@ -20,7 +20,7 @@
  * =====================================================================
  */
 
-import { indexCardFields } from '../ast/source-indexer.js';
+import { indexCardFields, CARD_FIELDS } from '../ast/source-indexer.js';
 
 export const AUDIT_VERSION = 'alpha-2';
 
@@ -191,7 +191,10 @@ function deriveFieldsFromSource(source) {
 
 function runIndexer(source, options) {
   if (typeof indexCardFields !== 'function') return null;
-  const attempts = [() => indexCardFields(source), () => indexCardFields(source, options)];
+  const attempts = [
+    () => indexCardFields(source, { includeLorebook: options.includeLorebook !== false }),
+    () => indexCardFields(source),
+  ];
   for (const attempt of attempts) {
     try {
       const out = attempt();

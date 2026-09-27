@@ -67,6 +67,36 @@ export const CARD_FIELDS = Object.freeze([
 ]);
 
 /**
+ * Extract indexable entries from character_book (embedded lorebooks).
+ * @param {object} card 
+ * @returns {Array<{field: string, text: string, entryIndex: number, comment: string}>}
+ */
+export function extractCharacterBookEntries(card) {
+  if (card === null || typeof card !== 'object') return [];
+  const book = card.character_book || card.data?.character_book;
+  if (!book || !Array.isArray(book.entries)) return [];
+
+  const results = [];
+  book.entries.forEach((entry, idx) => {
+    if (!entry || typeof entry !== 'object') return;
+    const text = typeof entry.content === 'string' ? entry.content : '';
+    if (!text.trim()) return;
+
+    const comment = String(entry.comment || entry.name || `entry_${idx}`).trim();
+    const fieldName = `lorebook[${comment || idx}]`;
+    results.push({
+      field: fieldName,
+      text,
+      entryIndex: idx,
+      comment,
+      entry,
+    });
+  });
+
+  return results;
+}
+
+/**
  * Accepted alternate spellings found in the wild (v1 exports, hand-edited
  * cards, third-party tooling). Keys are canonical field names.
  */
@@ -503,6 +533,16 @@ export function indexCard(card, options = {}) {
     const lines = indexField(LINE_SOURCES.CARD, field, loc.value, { firstOrdinal: ordinal });
     ordinal += lines.length;
     out.push(...lines);
+  }
+
+  // Index embedded character_book entries if present
+  if (options.includeLorebook !== false) {
+    const loreEntries = extractCharacterBookEntries(card);
+    for (const item of loreEntries) {
+      const lines = indexField(LINE_SOURCES.CARD, item.field, item.text, { firstOrdinal: ordinal });
+      ordinal += lines.length;
+      out.push(...lines);
+    }
   }
 
   return out;

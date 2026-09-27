@@ -186,7 +186,7 @@
   "name": "Geechan v5.3 [Alice • Claude Edition]",
   "sb_picor_metadata": {
     "version": "1.0.0",
-    "compiled_at": "2026-09-27T04:47:31.908Z",
+    "compiled_at": "2026-09-27T12:28:49.935Z",
     "target_model": "anthropic/claude-3-7-sonnet",
     "target_card": "Alice",
     "source_preset": "Geechan v5.3",

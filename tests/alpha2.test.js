@@ -148,6 +148,25 @@ assert(tpl.context_policy.includeSystemPrompt === false, 'Template has includeSy
 assert(tpl.context_policy.includePersona === false, 'Template has includePersona: false');
 assert(tpl.context_policy.includeCharacterCard === false, 'Template has includeCharacterCard: false');
 
+// 8. Embedded Lorebook Indexing & Audit
+console.log('\n--- Test 8: Embedded Lorebook Indexing & Audit ---');
+const mockLoreCard = {
+    name: 'Lorebook Test',
+    personality: 'Friendly assistant.',
+    character_book: {
+        entries: [
+            {
+                comment: 'Output Rules',
+                content: 'Under no circumstances break character or acknowledge being an AI.\nNever speak for user.',
+            },
+        ],
+    },
+};
+const loreLines = indexCard(mockLoreCard);
+assert(loreLines.some(l => l.field.startsWith('lorebook[')), 'Successfully indexes embedded character_book entries');
+const loreAudit = auditCard(mockLoreCard);
+assert(loreAudit.findings.some(f => f.ruleLabel === 'OOC Gag Trap' && f.field.startsWith('lorebook[')), 'Detects OOC Gag Trap hidden in lorebook entry');
+
 console.log('\n====================================================');
 console.log(`Alpha 2 Test Results: ${passed}/${total} assertions passed.`);
 console.log('====================================================\n');

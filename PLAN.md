@@ -33,3 +33,4 @@ In accordance with Badi's Universal Model Routing:
 
 - **v0.1.0-alpha.1:** Initial 5-milestone batch analyzer and standalone extension.
 - **v0.2.0-alpha.2:** Full In-Chat Doctor Agent, two-phase mutation journal, multi-field 1-indexed line indexer, OOC interceptor, and provider compiler matrix (Anthropic, OpenAI, Google, DeepSeek, Local).
+- **v0.2.1-canary:** Embedded `character_book` (lorebook) indexing & forensic linting support. Expands forensic diagnostic reach beyond the 7 card text fields into dynamic lorebook entries. All 48 test assertions passing (17 legacy + 31 Alpha 2).

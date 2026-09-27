@@ -180,7 +180,8 @@ export function inspectPreset(input, targetCharacterId = 100000) {
 }
 
 // CLI runner if executed directly
-if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname)) {
+import { fileURLToPath } from 'url';
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
     const targetFile = process.argv[2] || 'intel/presets/geechan-universal-v5.3-tinker-v3.json';
     const targetId = process.argv[3] ? parseInt(process.argv[3], 10) : 100000;
     

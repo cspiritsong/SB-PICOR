@@ -10,8 +10,10 @@
 
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-const CAPS_PATH = path.resolve(new URL('.', import.meta.url).pathname, 'model-caps.json');
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const CAPS_PATH = path.resolve(__dirname, 'model-caps.json');
 const CAPS_DATA = JSON.parse(fs.readFileSync(CAPS_PATH, 'utf-8'));
 
 /**
